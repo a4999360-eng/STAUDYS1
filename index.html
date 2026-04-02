@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>منظم المذاكرة الذكي | Smart Study Hub</title>
+    
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div class="bg-container"></div>
+
+    <div class="app-mobile-container">
+        <!-- Exit Focus Mode Button -->
+        <button id="exit-focus-btn" class="exit-focus-btn hidden" onclick="toggleFocusMode()">
+            <i class="fas fa-compress"></i> خروج من وضع التركيز
+        </button>
+        <!-- Persistent Header: User & Points -->
+        <header class="app-header glass-container">
+            <div id="login-nav" class="login-nav hidden">
+                <!-- Simple header status, usually hidden now in favor of overlay -->
+            </div>
+            <div id="user-nav" class="user-nav hidden">
+                <div class="user-badge" onclick="showPage('settings-page', document.getElementById('btn-settings'))">
+                    <span class="user-name-wrapper">
+                        <span id="userName">..</span>
+                        <span id="user-title-badge" class="user-title-badge hidden">🏆</span>
+                    </span>
+                    <span class="lvl-tag">LVL <span id="level">1</span></span>
+                </div>
+            </div>
+            <div class="points-hub">
+                <button id="buy-mot-btn" class="mot-store-btn disabled" onclick="spendPoints()" title="استبدل 50 نقطة برسالة حافزة">
+                    <i class="fas fa-bolt"></i>
+                </button>
+                <i class="fas fa-crown"></i>
+                <span id="points">0</span>
+            </div>
+        </header>
+
+        <!-- Main Content Area (Tabs) -->
+        <main class="content-view">
+            
+            <!-- HOME PAGE -->
+            <div id="home-page" class="page-container active">
+                <section class="xp-section">
+                    <div class="xp-info">
+                        <span>XP التقدم</span>
+                        <span><span id="xp">0</span> / <span id="nextXP">50</span></span>
+                    </div>
+                    <div class="xp-bar-outer"><div id="xp-bar-inner" class="xp-bar-inner"></div></div>
+                </section>
+
+                <section class="glass-container input-area">
+                    <div class="input-group-mobile vertical">
+                        <input type="text" id="taskInput" placeholder="ما هي مهمتك التالية؟">
+                        <div class="task-details-input">
+                            <div class="dt-input">
+                                <i class="fas fa-calendar-day"></i>
+                                <input type="date" id="taskDate">
+                            </div>
+                            <div class="dt-input">
+                                <i class="fas fa-clock"></i>
+                                <input type="time" id="taskTime">
+                            </div>
+                        </div>
+                        <button class="add-wide-btn" onclick="addTask()">
+                            <i class="fas fa-plus"></i> إضافة المهمة
+                        </button>
+                    </div>
+                </section>
+
+                <div id="taskList" class="task-list-mobile"></div>
+            </div>
+
+            <!-- STORAGE PAGE -->
+            <div id="storage-page" class="page-container hidden">
+                <div class="storage-header">
+                    <h2 class="page-title"><i class="fas fa-boxes-packing"></i> مخزن المهام</h2>
+                    <div class="storage-search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="date" id="storageSearchDate" onchange="renderStorage()">
+                        <button class="clear-search-btn" onclick="clearStorageSearch()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="storage-lists" class="storage-lists-container">
+                    <!-- Dynamic weekly lists will appear here -->
+                </div>
+            </div>
+
+            <!-- TIMER PAGE -->
+            <div id="timer-page" class="page-container hidden">
+                <h2 class="page-title"><i class="fas fa-clock"></i> مؤقت بومودورو</h2>
+                <div class="glass-container timer-big-card">
+                    <div id="timer-display">25:00</div>
+                    <div class="timer-actions">
+                        <button id="timerBtn" class="timer-main-btn" onclick="toggleTimer()">
+                            <i class="fas fa-play"></i> ابدأ
+                        </button>
+                        <button class="timer-reset-btn" onclick="resetTimer()">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                    </div>
+                    <button class="focus-toggle-btn" onclick="toggleFocusMode()">
+                        <i class="fas fa-expand"></i> وضع التركيز
+                    </button>
+                </div>
+            </div>
+
+            <!-- SETTINGS PAGE -->
+            <div id="settings-page" class="page-container hidden">
+                <h2 class="page-title"><i class="fas fa-cog"></i> الإعدادات</h2>
+                <div class="glass-container settings-card">
+                    <div class="settings-item">
+                        <label>مدة الجلسة (دقائق):</label>
+                        <input type="number" id="timerSetting" value="25">
+                    </div>
+                    <button class="save-settings-btn" onclick="saveSettings()">💾 حفظ التعديلات</button>
+                </div>
+
+                <h3 class="store-title"><i class="fas fa-shopping-cart"></i> متجر الإنجازات <span id="store-points-balance">0</span> <i class="fas fa-crown"></i></h3>
+                <div class="store-grid">
+                    <div class="store-item glass-container">
+                        <div class="item-icon color-change"><i class="fas fa-wand-magic-sparkles"></i></div>
+                        <h4>تغيير المظهر</h4>
+                        <p>شراء فرصة واحدة لتغيير لون الموقع</p>
+                        <button class="store-buy-btn" onclick="buyItem('theme_change', 100)">
+                            100 <i class="fas fa-crown"></i>
+                        </button>
+                    </div>
+
+                    <div class="store-item glass-container">
+                        <div class="item-icon task-boost"><i class="fas fa-gears"></i></div>
+                        <h4>توربو المهام (10 XP)</h4>
+                        <p>زيادة نقاط المهمة لـ 10 (24 ساعة)</p>
+                        <span id="timer-task-boost" class="item-timer hidden">24:00:00</span>
+                        <button class="store-buy-btn" id="btn-task-boost" onclick="buyItem('task_xp_boost', 500)">
+                            500 <i class="fas fa-crown"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="store-item glass-container">
+                        <div class="item-icon star-bg"><i class="fas fa-moon"></i></div>
+                        <h4>الخلفية الليلية</h4>
+                        <p>خلفية النجوم (لمدة 24 ساعة)</p>
+                        <span id="timer-star-bg" class="item-timer hidden">23h 59m</span>
+                        <button class="store-buy-btn" id="btn-star-bg" onclick="buyItem('star_bg', 300)">
+                            300 <i class="fas fa-crown"></i>
+                        </button>
+                    </div>
+
+                    <div class="store-item glass-container">
+                        <div class="item-icon motivation-item"><i class="fas fa-fire"></i></div>
+                        <h4>رسالة حافزة</h4>
+                        <p>جرعة تفاؤل فورية!</p>
+                        <button class="store-buy-btn" onclick="buyItem('motivation', 50)">
+                            50 <i class="fas fa-crown"></i>
+                        </button>
+                    </div>
+
+                    <div class="store-item glass-container">
+                        <div class="item-icon fire-bg-item"><i class="fas fa-fire-flame-curved"></i></div>
+                        <h4>خلفية الحريق</h4>
+                        <p>طاقة لا تنتهي (24 ساعة)</p>
+                        <span id="timer-fire-bg" class="item-timer hidden">24:00:00</span>
+                        <button class="store-buy-btn" id="btn-fire-bg" onclick="buyItem('fire_bg', 400)">
+                            400 <i class="fas fa-crown"></i>
+                        </button>
+                    </div>
+
+                    <div class="store-item glass-container">
+                        <div class="item-icon badge-item"><i class="fas fa-shield-halved"></i></div>
+                        <h4>لقب "أسطورة الدرا"</h4>
+                        <p>لقب ملكي (24 ساعة)</p>
+                        <span id="timer-hero-title" class="item-timer hidden">24:00:00</span>
+                        <button class="store-buy-btn" id="btn-hero-title" onclick="buyItem('btn-hero-title-real', 200)">
+                            200 <i class="fas fa-crown"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="logout-btn-full hidden" id="logoutBtn" onclick="logout()">خروج من الحساب</button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Dynamic Achievement Banner -->
+        <div id="achievement-banner" class="achievement-banner-mobile hidden">
+            <i class="fas fa-trophy"></i>
+            <div class="ach-text">
+                <span class="ach-title">إنجاز جديد!</span>
+                <span id="achievement-name" class="ach-desc">...</span>
+            </div>
+        </div>
+
+        <!-- ❗ EDIT TASK MODAL ❗ -->
+        <div id="edit-modal" class="motivation-modal hidden">
+            <div class="motivation-content">
+                <h2 style="color: var(--primary-color);">تعديل المهمة</h2>
+                <div class="input-area" style="background: none; padding: 0;">
+                    <div class="input-group-mobile vertical">
+                        <input type="text" id="editTaskInput" placeholder="نص المهمة...">
+                        <div class="task-details-input">
+                            <div class="dt-input">
+                                <i class="fas fa-calendar-day"></i>
+                                <input type="date" id="editTaskDate">
+                            </div>
+                            <div class="dt-input">
+                                <i class="fas fa-clock"></i>
+                                <input type="time" id="editTaskTime">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button class="add-wide-btn" onclick="saveEditedTask()" style="flex: 1; margin-top: 0;">
+                                <i class="fas fa-save"></i> حفظ
+                            </button>
+                            <button class="add-wide-btn" onclick="closeEditModal()" style="flex: 1; margin-top: 0; background: rgba(255,255,255,0.1); color: white;">
+                                <i class="fas fa-times"></i> إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="motivation-modal" class="motivation-modal hidden" onclick="closeMotivation()">
+            <div class="motivation-content">
+                <div class="firework-icon">🎆</div>
+                <h2 id="mot-title">أنت مذهل!</h2>
+                <p id="mot-message">...</p>
+                <button onclick="closeMotivation()">استمر في الإبداع! ✨</button>
+            </div>
+        </div>
+
+        <div class="theme-switcher-container">
+            <button id="theme-toggle-btn" class="theme-toggle-btn glass-container" onclick="toggleThemePalette()" title="تغيير مظهر الموقع">
+                <i class="fas fa-palette"></i>
+                <span id="theme-ticket-count" class="theme-ticket-badge hidden">0</span>
+            </button>
+            <div id="theme-palette" class="theme-palette glass-container hidden">
+                <div class="palette-header">
+                    <span>اختر لونك المفضل ✨</span>
+                    <button class="reset-theme-btn" onclick="resetTheme()" title="إعادة اللون الأصلي">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                </div>
+                <div class="color-options">
+                    <div class="color-opt" style="background: #3b82f6;" onclick="setTheme('#3b82f6')"></div>
+                    <div class="color-opt" style="background: #ef4444;" onclick="setTheme('#ef4444')"></div>
+                    <div class="color-opt" style="background: #10b981;" onclick="setTheme('#10b981')"></div>
+                    <div class="color-opt" style="background: #f59e0b;" onclick="setTheme('#f59e0b')"></div>
+                    <div class="color-opt" style="background: #8b5cf6;" onclick="setTheme('#8b5cf6')"></div>
+                    <div class="color-opt" style="background: #ec4899;" onclick="setTheme('#ec4899')"></div>
+                    <div class="color-opt" style="background: #06b6d4;" onclick="setTheme('#06b6d4')"></div>
+                    <div class="color-opt" style="background: #14b8a6;" onclick="setTheme('#14b8a6')"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION BAR -->
+        <nav class="bottom-nav glass-container">
+            <button class="nav-btn active" onclick="showPage('home-page', this)" id="btn-home">
+                <i class="fas fa-list-check"></i>
+                <span>المهام</span>
+            </button>
+            <button class="nav-btn" onclick="showPage('storage-page', this)" id="btn-storage">
+                <i class="fas fa-box-archive"></i>
+                <span>التخزين</span>
+            </button>
+            <button class="nav-btn" onclick="showPage('timer-page', this)" id="btn-timer">
+                <i class="fas fa-stopwatch"></i>
+                <span>المؤقت</span>
+            </button>
+            <button class="nav-btn" onclick="showPage('settings-page', this)" id="btn-settings">
+                <i class="fas fa-sliders"></i>
+                <span>إعدادات</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- FULL SCREEN LOGIN OVERLAY -->
+    <div id="login-overlay" class="login-overlay-mobile hidden">
+        <div class="login-card-glass glass-container">
+            <div class="brand-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h2>مرحباً بك في المنظم الذكي</h2>
+            <p>أدخل اسمك للبدء في تنظيم مهامك</p>
+            
+            <div class="login-input-group">
+                <input type="text" id="usernameInputOverlay" placeholder="اكتب اسم المستخدم هنا...">
+                <button class="login-go-big-btn" onclick="loginWithUsernameOverlay()">
+                    ابدأ الآن <i class="fas fa-rocket"></i>
+                </button>
+            </div>
+            
+            <div class="or-divider">أو</div>
+
+            <!-- Google Identity Services config -->
+            <div id="g_id_onload"
+                 data-client_id="452956702998-ivve5qvsvi174l08a3bbfep4cmkqn6o3.apps.googleusercontent.com"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <!-- GIS Standard Sign-In Button -->
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-locale="ar"
+                 style="display:flex; justify-content:center; margin-top: 5px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
