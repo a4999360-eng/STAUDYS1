@@ -14,9 +14,19 @@
     --glass-border: rgba(255, 255, 255, 0.1);
     --safe-top: env(safe-area-inset-top);
     --safe-bottom: env(safe-area-inset-bottom);
-    --transition: cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
     --focus-scale: 1.4;
 }
+
+/* ─── Global Scrollbar ─── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { 
+    background: rgba(255, 255, 255, 0.1); 
+    border-radius: 10px; 
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 
 @media (max-width: 480px) {
     :root {
@@ -24,7 +34,12 @@
     }
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: var(--transition); }
+* { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
+    transition: var(--transition); 
+    font-family: 'Cairo', sans-serif;
+}
 
 body {
     margin: 0;
@@ -350,8 +365,13 @@ body {
 .add-circle-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--primary-color); border: none; color: var(--text-on-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
 .add-circle-btn:active { transform: scale(0.9); }
 
-/* Task List */
-.task-list-mobile { margin-top: 15px; }
+/* Task List Grid Adaptation */
+.task-list-mobile { 
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-top: 20px; 
+}
 .task-item-mobile {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
@@ -986,8 +1006,12 @@ body {
         padding: 50px 35px;
     }
 
-    .task-feedback-text { font-size: 4.5rem; }
+    .task-list-mobile {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
 
+    .page-title { font-size: 1.8rem; }
     .theme-switcher-container { bottom: 120px; left: 25px; }
 }
 
@@ -1108,9 +1132,17 @@ body {
         font-weight: 700;
     }
 
-    /* ─── Content max width for readability ─── */
+    /* ─── Task Items Grid on Desktop ─── */
+    .task-list-mobile {
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 25px;
+    }
+
     .page-container {
-        max-width: 900px;
+        max-width: 1200px;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     /* ─── Store Grid ─── */
