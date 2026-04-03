@@ -61,7 +61,12 @@
 
                 <section class="glass-container input-area">
                     <div class="input-group-mobile vertical">
-                        <input type="text" id="taskInput" placeholder="ما هي مهمتك التالية؟">
+                        <div class="task-input-wrapper">
+                            <input type="text" id="taskInput" placeholder="ما هي مهمتك التالية؟">
+                            <button id="voice-input-btn" class="voice-input-btn" onclick="startVoiceInput()" title="إضافة مهمة بالصوت">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
                         <div class="task-details-input">
                             <div class="dt-input">
                                 <i class="fas fa-calendar-day"></i>

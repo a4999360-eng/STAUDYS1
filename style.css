@@ -260,6 +260,51 @@ body {
     box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3);
 }
 
+.task-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.voice-input-btn {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    z-index: 5;
+    border-radius: 50%;
+}
+
+.voice-input-btn:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+}
+
+.voice-input-btn.recording {
+    color: var(--danger-color);
+    animation: voicePulse 1.2s infinite;
+}
+
+@keyframes voicePulse {
+    0% { transform: translateY(-50%) scale(1); opacity: 1; }
+    50% { transform: translateY(-50%) scale(1.2); opacity: 0.7; }
+    100% { transform: translateY(-50%) scale(1); opacity: 1; }
+}
+
+/* Adjust input padding to make room for the button */
+.task-input-wrapper input[type="text"] {
+    padding-right: 50px !important;
+}
+
 .task-details-input { display: flex; gap: 8px; margin-top: 10px; width: 100%; overflow: hidden; }
 .dt-input { 
     flex: 1; 

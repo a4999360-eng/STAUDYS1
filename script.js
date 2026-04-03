@@ -1260,3 +1260,58 @@ document.addEventListener('mouseleave', (e) => {
     document.addEventListener('touchend', onEnd);
 })();
 
+// --- Voice Input (إضافة مهمة بالصوت) ---
+window.startVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("عذراً، متصفحك لا يدعم التعرف على الصوت. يرجى استخدام متصفح حديث مثل Chrome.");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'ar-SA'; // التعرف على اللغة العربية
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    const btn = document.getElementById('voice-input-btn');
+    const input = document.getElementById('taskInput');
+
+    recognition.onstart = () => {
+        btn.classList.add('recording');
+        input.placeholder = "جاري الاستماع... تحدث الآن";
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        input.value = transcript;
+        input.focus();
+        btn.classList.remove('recording');
+        input.placeholder = "ما هي مهمتك التالية؟";
+        
+        // تأثير اهتزاز خفيف للتأكيد
+        input.style.transform = 'scale(1.02)';
+        setTimeout(() => input.style.transform = 'scale(1)', 200);
+    };
+
+    recognition.onspeechend = () => {
+        recognition.stop();
+        btn.classList.remove('recording');
+        input.placeholder = "ما هي مهمتك التالية؟";
+    };
+
+    recognition.onerror = (event) => {
+        btn.classList.remove('recording');
+        input.placeholder = "ما هي مهمتك التالية؟";
+        console.error('Speech recognition error:', event.error);
+        if (event.error === 'not-allowed') {
+            alert("يرجى السماح بالوصول للميكروفون لاستخدام هذه الميزة.");
+        } else if (event.error === 'no-speech') {
+            // تجاهل حالة عدم وجود كلام
+        } else {
+            alert("حدث خطأ أثناء التعرف على الصوت: " + event.error);
+        }
+    };
+
+    recognition.start();
+};
+
