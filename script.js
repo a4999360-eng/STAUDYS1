@@ -51,7 +51,8 @@ let inventory = {
     fireBg: 0,
     heroTitle: 0,
     xpBoost: 0,
-    taskXpBoost: 0  // New: 10 XP per task boost
+    taskXpBoost: 0,  // New: 10 XP per task boost
+    whatsappContact: 0 // New: WhatsApp contact active for 24h
 };
 
 // --- Elements ---
@@ -222,7 +223,7 @@ function loadLocalData() {
     completedCount = parseInt(localStorage.getItem('completedCount')) || 0;
     achievements = JSON.parse(localStorage.getItem('achievements')) || [];
     settings = JSON.parse(localStorage.getItem('settings')) || { xpPerTask: 5, timerDuration: 25 };
-    inventory = JSON.parse(localStorage.getItem('inventory')) || { themeTickets: 0, starryBg: 0, fireBg: 0, heroTitle: 0, xpBoost: 0, taskXpBoost: 0 };
+    inventory = JSON.parse(localStorage.getItem('inventory')) || { themeTickets: 0, starryBg: 0, fireBg: 0, heroTitle: 0, xpBoost: 0, taskXpBoost: 0, whatsappContact: 0 };
     lastMilestone = Math.floor(points / 100) * 100;
 }
 
@@ -260,7 +261,7 @@ function applyData(data) {
     completedCount = data.completedCount || 0;
     achievements = data.achievements || [];
     settings = data.settings || { xpPerTask: 5, timerDuration: 25 };
-    inventory = data.inventory || { themeTickets: 0, starryBg: 0, fireBg: 0, heroTitle: 0, xpBoost: 0, taskXpBoost: 0 };
+    inventory = data.inventory || { themeTickets: 0, starryBg: 0, fireBg: 0, heroTitle: 0, xpBoost: 0, taskXpBoost: 0, whatsappContact: 0 };
     lastMilestone = Math.floor(points / 100) * 100;
  village
     renderAll();
@@ -275,7 +276,7 @@ function resetDataState() {
     completedCount = 0;
     achievements = [];
     settings = { xpPerTask: 5, timerDuration: 25 };
-    inventory = { themeTickets: 0, starryBg: 0, fireBg: 0, heroTitle: 0, xpBoost: 0, taskXpBoost: 0 };
+    inventory = { themeTickets: 0, starryBg: 0, fireBg: 0, heroTitle: 0, xpBoost: 0, taskXpBoost: 0, whatsappContact: 0 };
     lastMilestone = 0;
 }
 
@@ -386,7 +387,8 @@ function renderStore() {
         { id: 'fire_bg', btn: 'btn-fire-bg', timer: 'timer-fire-bg', expiry: inventory.fireBg },
         { id: 'xp_boost', btn: 'btn-xp-boost', timer: 'timer-xp-boost', expiry: inventory.xpBoost },
         { id: 'hero_title', btn: 'btn-hero-title', timer: 'timer-hero-title', expiry: inventory.heroTitle },
-        { id: 'task_xp_boost', btn: 'btn-task-boost', timer: 'timer-task-boost', expiry: inventory.taskXpBoost }
+        { id: 'task_xp_boost', btn: 'btn-task-boost', timer: 'timer-task-boost', expiry: inventory.taskXpBoost },
+        { id: 'whatsapp_contact', btn: 'btn-whatsapp-contact', timer: 'timer-whatsapp-contact', expiry: inventory.whatsappContact }
     ];
 
     items.forEach(item => {
@@ -395,9 +397,15 @@ function renderStore() {
         if (!btn || !timerSpan) return;
 
         if (item.expiry > now) {
-            btn.innerText = "مفعل ✅";
             btn.classList.add('owned');
-            btn.disabled = true;
+            // Specific handling for WhatsApp contact
+            if (item.id === 'whatsapp_contact') {
+                btn.innerText = "تواصل الآن 💬";
+                btn.disabled = false;
+            } else {
+                btn.innerText = "مفعل ✅";
+                btn.disabled = true;
+            }
             timerSpan.classList.remove('hidden');
             timerSpan.innerText = formatDuration(item.expiry - now);
         } else {
@@ -412,7 +420,8 @@ function renderStore() {
                     'fire_bg': '400', 
                     'xp_boost': '500', 
                     'hero_title': '200',
-                    'task_xp_boost': '500' 
+                    'task_xp_boost': '500',
+                    'whatsapp_contact': '500'
                 };
                 btn.innerHTML = `${prices[item.id]} <i class="fas fa-crown"></i>`;
             }
@@ -496,6 +505,17 @@ window.buyItem = (itemId, cost) => {
         points -= cost;
         inventory.taskXpBoost = now + day;
         showAchievementNotification("شراء ناجح!", "توربو المهام (10 XP) مفعل! ⚙️");
+    } else if (itemId === 'whatsapp_contact') {
+        if (inventory.whatsappContact > now) {
+            window.open('https://wa.me/201093896298', '_blank');
+            return;
+        }
+        points -= cost;
+        inventory.whatsappContact = now + day;
+        showAchievementNotification("شراء ناجح!", "يمكنك الآن التواصل مع شهوده ويبا 💬");
+        setTimeout(() => {
+            window.open('https://wa.me/201093896298', '_blank');
+        }, 1000);
     }
 
     saveData();

@@ -819,6 +819,7 @@ body {
 .fire-bg-item { background: linear-gradient(135deg, #f97316, #ef4444); color: white; }
 .boost-item { background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; }
 .task-boost { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: white; }
+.whatsapp-item { background: linear-gradient(135deg, #25d366, #128c7e); color: white; }
 
 .item-timer {
     font-size: 0.7rem;
